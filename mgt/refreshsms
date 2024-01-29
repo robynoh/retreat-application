@@ -1,0 +1,101 @@
+
+<?php 
+ob_start();
+  // Database
+  require_once("../class/class.php");
+
+  $connect =new connection(); 
+$connect->connectTodatabase();
+$connect->selectDatabase();
+$msg="";
+
+$recordperpage = 500;
+	$pagenum = 1;
+	if(isset($_GET['page'])){
+	$pagenum = $_GET['page'];
+	}
+	$offset = ($pagenum - 1) * $recordperpage;
+
+$sql="SELECT * FROM member order by member_id DESC limit $offset, $recordperpage";
+$results=$connect->retrieve($sql);
+$rows=$connect->arrayFetch($results);
+
+
+if(isset($_POST['send'])){
+	
+	if(empty($_POST['applicant'])){
+		
+		$msg="Please select an applicant to send SMS to.";
+	
+	}else{
+		
+		
+		foreach($_POST['applicant'] as  $key => $val){
+			
+			
+			
+			$sql="SELECT * FROM `member` WHERE member_id='".$_POST['applicant'][$key]."'";
+			$results=$connect->retrieve($sql);
+			$rows=$connect->arrayFetch($results);
+			foreach($rows as $row){
+				
+				 $connect->CURLsendsms($row['phone'],$row['prefname'],$_POST['message']);
+				 $sql="update member set send_status=1 where member_id=".$_POST['applicant'][$key];
+				$result=$connect->insertion($sql);	
+				
+			}
+		
+		//ExecuteQuery("update news_update set status=1 where update_id='".$_POST['news'][$key]."'");
+		header('location:all_members?status=sent');
+		}
+		
+		
+		
+		
+	}
+	
+	
+	
+}
+
+ if(isset($_POST['delete'])){
+	 
+	 
+	if(empty($_POST['applicant'])){
+		
+		$msg="Please select a member to delete.";
+	
+	}else{
+		
+			foreach($_POST['applicant'] as  $key => $val){
+				
+				$sql="delete from member where member_id=".$_POST['applicant'][$key];
+				$result=$connect->insertion($sql);
+				header('location:all_student?status=deleted');
+				
+			}
+	} 
+	 
+ } 
+ 
+
+ 
+ if(isset($_GET['status'])&& $_GET['status']=='deleted'){
+	 
+	 $msg="<span style=\"color:#090\">Member Deleted successfully</span>";
+ }
+ 
+ if(isset($_GET['status'])&& $_GET['status']=='sent'){
+	 
+	 $msg="<span style=\"color:#090\">SMS Sent Sucessfully</span>";
+ }
+ 
+ if(isset($_GET['status'])&& $_GET['status']=='refresh'){
+	 
+	$sql="update member set send_status=0";
+	$result=$connect->insertion($sql);
+	header('location:all_members');
+ }
+  
+?>
+ 

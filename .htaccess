@@ -1,0 +1,27 @@
+RewriteEngine On
+ErrorDocument 404 /404.html
+
+
+
+RewriteRule ^news/([0-9]+)/([^/]+)/([0-9]+)/([^/]+)/([0-9]+)/?$ news_detail.php?newsid=$5 [NC,L]
+
+
+RewriteRule ^clips/([0-9]+)/([^/]+)/([0-9]+)/([^/]+)/([0-9]+)/?$ vdetail.php?videoid=$5 [NC,L]
+
+RewriteRule ^remark/([0-9]+)/([^/]+)/?$ remark_detail.php?remarkid=$1 [NC,L]
+
+
+
+
+
+
+
+
+
+
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
